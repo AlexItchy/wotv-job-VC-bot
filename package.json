@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "eslint": "^8.52.0"
@@ -9,6 +10,6 @@
   "scripts": {
     "deploy-test": "node src/deploy-commands-test.js && node src/index.js",
     "deploy-prod": "node src/deploy-commands-prod.js",
-    "start": "node src/index.js"
+    "start": "nodemon node src/index.js dev"
   }
 }
