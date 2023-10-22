@@ -147,11 +147,31 @@ const partyEffectLegend = {
     363: 'Debuff Effect Weakening'
 }
 
+const jobs = [
+	'Sword (Red Mage etc.)',
+	'Sword (Warrior etc.)',
+	'Sword (Knight etc.)',
+	'Greatsword',
+	'Axe',
+	'Spear',
+	'Bow',
+	'Gun',
+	'Fists',
+	'Dagger',
+	'Ninja Blade',
+	'Katana',
+	'Staff (Black Mage etc.)',
+	'Staff (Devout etc.)',
+	'Mace',
+	'Gloves',
+	'Book'
+];
+
 async function getVcListPerJob (searchList) {
 
     const vcList = buildVcList(rawMappingJson);
 
-    if (searchList.length === 2) {
+    if (searchList.length <= 2) {
         return getOverlappingVc(searchList, vcList);
     } else if (searchList.length === 3) {
 
@@ -210,7 +230,7 @@ function getOverlappingVc(jobSearchList, vcList) {
 
     return {
         jobs: jobSearchList,
-        overlap: getDuplicates(jobList.flat())
+        overlap: jobList.length > 1 ? getDuplicates(jobList.flat()) : jobList.flat()
     };
 
 }
@@ -301,11 +321,13 @@ function buildVcList (mappingJson) {
 
 function getJobGroups () {
 
-    const {
-        jobGroupName
-    } = rawMappingJson;
+    // const {
+    //     jobGroupName
+    // } = rawMappingJson;
 
-    return jobGroupName.infos.map(e => e.value).filter(e => e == 'All')
+    // return jobGroupName.infos.map(e => e.value).filter(e => e == 'All')
+
+    return jobs;
 
 }
 

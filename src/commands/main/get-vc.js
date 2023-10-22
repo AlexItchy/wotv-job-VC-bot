@@ -2,54 +2,39 @@ const { SlashCommandBuilder } = require('discord.js');
 const path = require('node:path');
 const { getVcListPerJob, getVcStats, getJobGroups } = require(path.join(__dirname, '../../wotv/get-vc-list-per-job.js'));
 
-const jobs = [
-	'Sword (Red Mage etc.)',
-	'Sword (Warrior etc.)',
-	'Sword (Knight etc.)',
-	'Greatsword',
-	'Axe',
-	'Spear',
-	'Bow',
-	'Gun',
-	'Fists',
-	'Dagger',
-	'Ninja Blade',
-	'Katana',
-	'Staff (Black Mage etc.)',
-	'Staff (Devout etc.)',
-	'Mace',
-	'Gloves',
-	'Book'
-];
-
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('get-vc')
 		.setDescription('Get VCs for provided jobs or units')
 		.addStringOption(option =>
-			option.setName('team1')
-				.setDescription('Unit/Job of teammate #1')
+			option.setName('job1')
+				.setDescription('Job of teammate #1')
 				.setAutocomplete(true))
 		.addStringOption(option =>
-			option.setName('team2')
-				.setDescription('Unit/Job of teammate #2')
+			option.setName('job2')
+				.setDescription('Job of teammate #2')
 				.setAutocomplete(true))
 		.addStringOption(option =>
-			option.setName('team3')
-				.setDescription('Unit/Job of teammate #3')
-				.setAutocomplete(true)),
+			option.setName('job3')
+				.setDescription('Job of teammate #3')
+				.setAutocomplete(true))
+		.addBooleanOption(option =>
+			option.setName('show')
+				.setDescription('Show results to channel. Defaults to false.')),
 	async execute(interaction) {
 
 		const searchList = [
-			interaction.options.getString('team1'),
-			interaction.options.getString('team2'),
-			interaction.options.getString('team3')
-		].filter(e => e);
+			interaction.options.getString('job1'),
+			interaction.options.getString('job2'),
+			interaction.options.getString('job3')
+		].filter(e => e).filter((e, idx, arr) => arr.indexOf(e) == idx);
+
+		const show = interaction.options.getBoolean('show');
 
 		if (searchList.length <= 1) {
 
 			await interaction.reply({
-				content: 'Input invalid. Must provide more than one team member.',
+				content: 'Input invalid. Must provide more than one job.',
 				ephemeral: true
 			});
 
@@ -59,7 +44,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [buildResponse(vcOverlapReport)],
-				ephemeral: true,
+				ephemeral: !show,
 			});
 
 		} else if (searchList.length === 3) {
@@ -67,7 +52,8 @@ module.exports = {
 			const vcOverlapReport = await getVcListPerJob(searchList);
 
 			await interaction.reply({
-				embeds: [ ...vcOverlapReport.map(e => buildResponse(e))	]
+				embeds: [ ...vcOverlapReport.map(e => buildResponse(e))	],
+				ephemeral: !show,
 			});
 			
 		}
@@ -76,8 +62,8 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
-		if (focusedOption.name.includes('team')) {
-			const filtered = jobs.filter(e => e.startsWith(focusedOption.value));
+		if (focusedOption.name.includes('job')) {
+			const filtered = getJobGroups().filter(e => e.startsWith(focusedOption.value));
 			await interaction.respond(
 				filtered.map(choice => ({ name: choice, value: choice })),
 			);
