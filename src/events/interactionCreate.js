@@ -5,6 +5,8 @@ module.exports = {
 	async execute(interaction) {
 		if (interaction.isChatInputCommand()) {
 
+			console.log(`${new Date().toLocaleString()}\tUser ${interaction.user.username}/${interaction.user.globalName} invoked the command ${interaction.commandName} in the server ${interaction.member.guild.name}.`);
+
 			const command = interaction.client.commands.get(interaction.commandName);
 
 			if (!command) {
@@ -22,6 +24,8 @@ module.exports = {
 			const timestamps = cooldowns.get(command.data.name);
 			const defaultCooldownDuration = 5;
 			const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
+
+			
 
 			if (timestamps.has(interaction.user.id)) {
 				const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
