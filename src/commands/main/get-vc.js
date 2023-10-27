@@ -30,32 +30,18 @@ module.exports = {
 		].filter(e => e).filter((e, idx, arr) => arr.indexOf(e) == idx);
 
 		const show = interaction.options.getBoolean('show');
+		const vcOverlapReport = await getVcListPerJob(searchList);
 
-		if (searchList.length <= 1) {
-
+		if (searchList.length > 0) {
 			await interaction.reply({
-				content: 'Input invalid. Must provide more than one job.',
-				ephemeral: true
-			});
-
-		} else if (searchList.length === 2) {
-
-			const vcOverlapReport = await getVcListPerJob(searchList);
-
-			await interaction.reply({
-				embeds: [buildResponse(vcOverlapReport)],
+				embeds: buildResponse(vcOverlapReport),
 				ephemeral: !show,
 			});
-
-		} else if (searchList.length === 3) {
-
-			const vcOverlapReport = await getVcListPerJob(searchList);
-
+		} else {
 			await interaction.reply({
-				embeds: [ ...vcOverlapReport.map(e => buildResponse(e))	],
+				content: 'Input invalid. Must provide at least one job.',
 				ephemeral: !show,
 			});
-			
 		}
 
 	},
@@ -72,40 +58,62 @@ module.exports = {
 	},
 };
 
-function buildResponse (report) {
+function buildResponse (reportList) {
 
-	const overlapReport = {
-		color: 0x0099ff,
-		title: report.jobs.join(', '),
-		description: 'List of VCs:',
-		fields: report.overlap.reduce((prev, vcName) => {
+	return reportList.reduce((prev, report) => {
+		
+		const overlapReport = {
+			color: 0x0099ff,
+			title: report.jobs.join(', '),
+			description: 'List of VCs:',
+			fields: []
+		};
 
-			prev.push({
+		if (report.overlap.length == 0) {
+			overlapReport.fields.push({
 				name: '',
-				value: `[${vcName}](https://wotv-calc.com/cards/${vcName.toLowerCase().replaceAll(/[^a-zA-Z ]/g, '').replaceAll(' ', '-')})`
-			});
+				value: ':x:'
+			})
 
-			const vcStats = getVcStats(vcName);
+			prev.push(overlapReport);
 
-			vcStats.partyEffects.forEach(e => {
-				prev.push({
-					name: e.name,
-					value: e.value,
-					inline: true
+		} else {
+
+			const embedParts = parseInt(report.overlap.length / 6) + ( report.overlap.length % 6 > 0 ? 1 : 0 );
+			let embedCounter = 0;
+
+			report.overlap.forEach((vcName, idx) => {
+
+				overlapReport.fields.push({
+					name: '',
+					value: `[${vcName}](https://wotv-calc.com/cards/${vcName.toLowerCase().replaceAll(/[^a-zA-Z ]/g, '').replaceAll(' ', '-')})`
 				});
-			});
 
-			return prev;
-		}, [])
-	}
+				const vcStats = getVcStats(vcName);
+	
+				vcStats.partyEffects.forEach(e => {
+					overlapReport.fields.push({
+						name: e.name,
+						value: e.value,
+						inline: true
+					});
+				});
+				
+				if (((idx+1) % 6 == 0 && idx >= 5) || idx+1 == report.overlap.length) {
+					embedCounter++;
+					prev.push({
+						...overlapReport,
+						title: embedParts > 1 ? overlapReport.title + ` ${embedCounter}/${embedParts}` : overlapReport.title
+					})
+					overlapReport.fields = []
+				}
 
-	if (report.overlap.length == 0) {
-		overlapReport.fields.push({
-			name: '',
-			value: ':x:'
-		})
-	}
+			})
 
-	return overlapReport;
+		}
+
+		return prev;
+
+	}, []);
 
 }

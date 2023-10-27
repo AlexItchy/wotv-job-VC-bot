@@ -1,14 +1,14 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const rawMappingUrl = {
-    visionCardInfo: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/data/VisionCard.json',
-    jobGrouping: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/data/VisionCardJobConditionGroup.json',
-    visionCardName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/en/VisionCardName.json',
-    jobName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/en/JobName.json',
-    jobGroupName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/en/VisionCardJobCondGroup.json',
-    unitName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/en/UnitName.json',
-    jobGroupCaption: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/en/CaptionLimitedCond.json',
-    buffs: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/01aa44d17e2795631b826b4cbd1e3614a411c13e/data/Buff.json',
+    visionCardInfo: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/VisionCard.json',
+    jobGrouping: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/VisionCardJobConditionGroup.json',
+    visionCardName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/VisionCardName.json',
+    jobName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/JobName.json',
+    jobGroupName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/VisionCardJobCondGroup.json',
+    unitName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/UnitName.json',
+    jobGroupCaption: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/CaptionLimitedCond.json',
+    buffs: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/Buff.json',
 };
 
 let rawMappingJson;
@@ -172,7 +172,7 @@ async function getVcListPerJob (searchList) {
     const vcList = buildVcList(rawMappingJson);
 
     if (searchList.length <= 2) {
-        return getOverlappingVc(searchList, vcList);
+        return [ getOverlappingVc(searchList, vcList) ];
     } else if (searchList.length === 3) {
 
         const overlap1_2 = getOverlappingVc([ searchList[0], searchList[1] ], vcList);
