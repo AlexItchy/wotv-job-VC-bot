@@ -337,10 +337,37 @@ function getDuplicates (arr) {
 
 }
 
+async function getVcSuggestion (jobSearchList, suggestCount = 3) {
+
+    if (jobSearchList.length != 0) {
+
+        const jobGroupsUnsorted = await getJobGroups().reduce(async (prev, suggestedJob) => {
+
+            if (jobSearchList.includes(suggestedJob)) {
+                return prev;
+            }
+
+            const vcOverlaps = await getVcListPerJob([ suggestedJob, ...jobSearchList]);
+
+            return [ ...await prev, ...vcOverlaps]; 
+        }, [])
+        
+        return jobGroupsUnsorted        
+        .sort((a, b) => {
+            return b.overlap.length - a.overlap.length;
+        })
+        .filter(e => e.jobs.length > jobSearchList.length)
+        .slice(0, suggestCount);
+        
+    }
+
+}
+
 module.exports = {
     getVcListPerJob,
     getVcStats,
-    getJobGroups
+    getJobGroups,
+    getVcSuggestion
 };
 
 (async () => {

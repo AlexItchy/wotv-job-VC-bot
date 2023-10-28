@@ -1,0 +1,6 @@
+{
+    "append": true,
+    "script": "src/index.js",
+    "outFile": "wotv-job-vc-bot.log",
+    "max": 5
+}
