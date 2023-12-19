@@ -1,6 +1,18 @@
-{
-    "append": true,
-    "script": "src/index.js",
-    "outFile": "wotv-job-vc-bot.log",
-    "max": 5
-}
+[
+    {
+        "append": true,
+        "script": "src/index.js",
+        "outFile": "wotv-job-vc-bot.log",
+        "max": 5,
+        "watch": true,
+        "watchDirectory": "src/wotv/data-dump-raw"
+    },
+    {
+        "append": true,
+        "script": "src/wotv/download-data.js",
+        "outFile": "wotv-job-vc-bot-datamine-download.log",
+        "max": 5,
+        "watch": true,
+        "watchDirectory": "src/wotv/data-dump-raw"
+    }
+]

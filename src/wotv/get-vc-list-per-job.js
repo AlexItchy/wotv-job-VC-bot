@@ -1,15 +1,6 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
-const rawMappingUrl = {
-    visionCardInfo: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/VisionCard.json',
-    jobGrouping: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/VisionCardJobConditionGroup.json',
-    visionCardName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/VisionCardName.json',
-    jobName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/JobName.json',
-    jobGroupName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/VisionCardJobCondGroup.json',
-    unitName: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/UnitName.json',
-    jobGroupCaption: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/en/CaptionLimitedCond.json',
-    buffs: 'https://raw.githubusercontent.com/shalzuth/wotv-ffbe-dump/master/data/Buff.json',
-};
+const fs = require('fs');
+const path = require('path');
 
 let rawMappingJson;
 
@@ -192,15 +183,9 @@ async function getVcListPerJob (searchList) {
 
 async function getRawMappingJson () {
 
-    const rawMappingJson = {};
+    const rawMapping = fs.readFileSync(path.join(__dirname, 'data-dump-raw', 'wotv_datamine_info.json'))
 
-    await Promise.all(
-        Object.keys(rawMappingUrl).map(async (e) => {
-            rawMappingJson[e] = await getRawJson(rawMappingUrl[e]);
-        })
-    );
-
-    return rawMappingJson;
+    return JSON.parse(rawMapping);
 
 }
 
@@ -232,13 +217,6 @@ function getOverlappingVc(jobSearchList, vcList) {
         jobs: jobSearchList,
         overlap: jobList.length > 1 ? getDuplicates(jobList.flat()) : jobList.flat()
     };
-
-}
-
-async function getRawJson (URL) {
-
-    const response = await fetch(URL);
-    return await response.json();
 
 }
 
@@ -280,7 +258,7 @@ function buildVcList (mappingJson) {
             value: vcName
         } = visionCardName.infos.find(e => e.key === curr.iname);
 
-        const jobGroup = currJobGroupCaption.trim().split('/');
+        const jobGroup = currJobGroupCaption.includes('/') ? currJobGroupCaption.trim().split('/') : currJobGroupCaption.trim().split(', ');
 
         const partyEffectRaw1 = buffs.items.find(e => e.iname === `BUFF_${curr.iname}_GS` || e.iname === `BUFF_GL_${curr.iname}_GS`);
         const partyEffectRaw2 = buffs.items.find(e => e.iname === `BUFF_${curr.iname}_GS_AW` || e.iname === `BUFF_GL_${curr.iname}_GS_AW`);
@@ -373,5 +351,5 @@ module.exports = {
 (async () => {
 
     rawMappingJson = await getRawMappingJson();
-
+    
 })()
